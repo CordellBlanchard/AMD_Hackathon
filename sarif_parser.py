@@ -31,26 +31,41 @@ def parse_sarif_file(file_path):
                 unique_results[id]['description'] = result['message']['text']
                 unique_results[id]['commit'] = commit 
                 unique_results[id]['resolved'] = False
+                # unique_results[id]['resolved_commit'] = None
     
     return unique_results
 
 def update_old_state(new_state: dict, old_state: dict): 
-    for key in new_state.keys(): 
-        if old_state.get(key) is not None: 
-            old_state['key']['resolved'] = True 
-
+    for key in old_state.keys(): 
+        if new_state.get(key) is not None: 
+            old_state[key] = new_state[key] 
+            new_state.pop(key) 
         else: 
-            old_state[key] = new_state[key]  
+            old_state[key]['resolved'] = True 
+            # old_state[key]['resolved_commit'] = new_state[key]['commit'] 
+
+    # If new_state is not empty, append to old_state
+    if new_state: 
+        for key in new_state.keys(): 
+            old_state[key] = new_state[key]
     
     return old_state 
            
 
 if __name__ == "__main__":
 
-    sarif_file_name = '../database/database-d25dd807485c-2020-01-03.sarif'
+    sarif_file_name = '../database-d25dd807485c-2020-01-03.sarif'
+    old_sarif_file_name = '../database-b8b8ebcf851d-2017-04-11.sarif'
+    old_results = parse_sarif_file(old_sarif_file_name) 
     unique_results = parse_sarif_file(sarif_file_name) 
 
-    print(unique_results['64ec0e96e96c3fde:1'])
+    latest_dict = update_old_state(unique_results, old_results)
+
+    # print(old_results.keys(), '\n')
+    # print(unique_results.keys(), '\n')
+    # print(latest_dict.keys(), '\n')
+
+    print(latest_dict['d451331f1f6ae537:1']['resolved'], '\n')
 
 
 
