@@ -1,12 +1,18 @@
 import sarif
 from sarif import loader
+import re
 
 
 def parse_sarif_file(file_path):
     sarif_data = loader.load_sarif_file(file_path)  
 
-    commit = file_path.split('database')[-1].split('-')[1]
+    commit = file_path.split('database')[-1].split('-')[1] 
+    date_pattern = r'(\d{4}-\d{2}-\d{2})'
+    match = re.search(date_pattern, file_path)
 
+    if match:
+        date = match.group(1)
+    
     unique_results = {} 
 
     for run in sarif_data.runs: 
@@ -29,7 +35,8 @@ def parse_sarif_file(file_path):
                 unique_results[id]['end_columns'] = [result['locations'][0]['physicalLocation']['region']['endColumn']]
                 unique_results[id]['rule'] = result['rule']['id']
                 unique_results[id]['description'] = result['message']['text']
-                unique_results[id]['commit'] = commit 
+                unique_results[id]['commit'] = commit  
+                unique_results[id]['date'] = date
                 unique_results[id]['resolved'] = False
                 # unique_results[id]['resolved_commit'] = None
     
@@ -50,23 +57,22 @@ def update_old_state(new_state: dict, old_state: dict):
             old_state[key] = new_state[key]
     
     return old_state 
+
+def get_updated_state(old_file_path: str, new_file_path: str): 
+    old_results = parse_sarif_file(old_file_path) 
+    unique_results = parse_sarif_file(new_file_path) 
+    latest_dict = update_old_state(unique_results, old_results)
+
+    return latest_dict 
            
 
 if __name__ == "__main__":
 
-    sarif_file_name = '../database-d25dd807485c-2020-01-03.sarif'
-    old_sarif_file_name = '../database-b8b8ebcf851d-2017-04-11.sarif'
-    old_results = parse_sarif_file(old_sarif_file_name) 
-    unique_results = parse_sarif_file(sarif_file_name) 
+    sarif_file_name = '../database/database-d25dd807485c-2020-01-03.sarif'
+    old_sarif_file_name = '../database/database-b8b8ebcf851d-2017-04-11.sarif' 
+    latest_dict = get_updated_state(old_sarif_file_name, sarif_file_name) 
 
-    latest_dict = update_old_state(unique_results, old_results)
-
-    # print(old_results.keys(), '\n')
-    # print(unique_results.keys(), '\n')
-    # print(latest_dict.keys(), '\n')
-
-    print(latest_dict['d451331f1f6ae537:1']['resolved'], '\n')
-
+    print(latest_dict)
 
 
 
