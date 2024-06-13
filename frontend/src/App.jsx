@@ -5,6 +5,7 @@ import NavigationTabs from "./components/NavigationTabs";
 import CodePanel from "./components/CodePanel";
 import { Col, Row } from "react-bootstrap";
 import { Container } from "react-bootstrap";
+import AuthorsList from "./components/AuthorsList";
 
 function App() {
   const [activeTab, setActiveTab] = useState("Issues");
@@ -16,7 +17,9 @@ function App() {
       <NavigationTabs activeTab={activeTab} setActiveTab={setActiveTab} />
         <Row className="flex-nowrap">
           <Col sm={blame ? "4" : null}>
+          <AuthorsList setBlame={setBlame} blame={blame} activeTab={activeTab} />
             <IssuesList setBlame={setBlame} blame={blame} activeTab={activeTab} />
+
           </Col>
           {blame !== null ? (
             <Col>

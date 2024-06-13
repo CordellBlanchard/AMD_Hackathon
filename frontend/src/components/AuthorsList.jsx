@@ -3,10 +3,12 @@ import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { Button, Form, Row, Col, Badge } from "react-bootstrap";
 
-const IssuesList = (props) => {
+const AuthorsList = (props) => {
+  const [authors, setAuthors] = useState([]);
   const [issues, setIssues] = useState([]);
   const [filter, setFilter] = useState("");
   const [hideResolved, setHideResolved] = useState(false);
+
 
   // filter issues based on search term and hideResolved flag
   const filteredIssues = useMemo(() => {
@@ -31,12 +33,13 @@ const IssuesList = (props) => {
   }, [issues, filter, hideResolved]);
 
   useEffect(() => {
-    const fetchIssues = async () => {
-      const { data } = await axios.get("http://localhost:5000/list");
-      setIssues(data);
+    const fetchAuthors = async () => {
+      const { data } = await axios.get("http://localhost:5000/group_issues?group_by='author_name'");
+      setAuthors(data);
+      console.log("authors")
       console.log(data);
     };
-    fetchIssues();
+    fetchAuthors();
   }, []);
 
   const renderIssues = () =>
@@ -100,4 +103,4 @@ const IssuesList = (props) => {
   );
 };
 
-export default IssuesList;
+export default AuthorsList;
