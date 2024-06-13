@@ -43,35 +43,42 @@ def list_users():
 
 @main_bp.route('/generate_llm_response', methods=['POST'])
 def generate_llm_response():
+    data = request.get_json()
+
+    # Extract required parameters from the request
+    rule_info = data.get("rule_info")
+    issue_message = data.get("issue_message")
+    file = data.get("file")
+    line = data.get("line")
+    commit_hash = data.get("commit_hash")
+    blame_id = data.get("blame_id")
+
+    # Check if all required parameters are provided
+    if not all([rule_info, issue_message, file, line, commit_hash, blame_id]):
+        return jsonify({"error": "Missing required parameters"}), 400
+
+    # Use the helper function
+    result, status_code = handle_llm_response(rule_info, issue_message, file, line, commit_hash, blame_id)
+    return jsonify(result), status_code
+
+
+def handle_llm_response(rule_info, issue_message, file, line, commit_hash, blame_id):
     try:
-        data = request.get_json()
-
-        # Extract required parameters from the request
-        rule_info = data.get("rule_info")
-        issue_message = data.get("issue_message")
-        file = data.get("file")
-        line = data.get("line")
-        commit_hash = data.get("commit_hash")
-        blame_id = data.get("blame_id")
-
-        # Check if all required parameters are provided
-        if not all([rule_info, issue_message, file, line, commit_hash, blame_id]):
-            return "Missing required parameters", 400
-
         # Generate the LLM response
         response = get_llm_response(rule_info, issue_message, file, line, commit_hash)
 
         # Create cache entry
         create_cache(blame_id, response)
 
-        return jsonify({"message": "LLM response generated and cached successfully", "response": response}), 200
+        return {"message": "LLM response generated and cached successfully", "response": response}, 200
 
     except Exception as e:
         db.session.rollback()
-        return f'An error occurred: {str(e)}', 500
+        return {"error": f'An error occurred: {str(e)}'}, 500
+
 
 @main_bp.route('/test_llm', methods=['GET'])
-def test_llm(id):
+def test_llm():
     try:
         id = 5 
         # Retrieve the specific issue by ID
@@ -83,28 +90,17 @@ def test_llm(id):
         issue_data = issue.serialize()
 
         # Access the first blame associated with the issue
-        if issue.blames: 
-            first_blame = issue.blames[0]
-            first_blame_data = {
-                'id': first_blame.id,
-                'file': first_blame.file,
-                'starting_line': first_blame.starting_line
-            }
-        else:
-            first_blame_data = None
+        first_blame = issue.blames[0] if issue.blames else None
+        commit_hash = issue.commit 
+        issue_message =  issue.description
+        blame_id = issue.blames[0].id
+        file = issue.blames[0].file
+        line =  issue.blames[0].starting_line
+        rule_info = issue.rule.fullDescription
 
-     
-        # Combine the issue data and first blame data
-        result = {
-            'commit_hash': issue.commit, 
-            'issue_message': issue.description, 
-            'blame_id': issue.blames[0].id,
-            'file': issue.blames[0].file, 
-            'line': issue.blames[0].starting_line, 
-            'rule_info': issue.rule.fullDescription
-        } 
-
-        return jsonify(result), 200
+        # Use the helper function
+        result, status_code = handle_llm_response(rule_info, issue_message, file, line, commit_hash, blame_id)
+        return jsonify(result), status_code
 
     except Exception as e:
         db.session.rollback()
