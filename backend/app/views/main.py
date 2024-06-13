@@ -13,29 +13,26 @@ main_bp = Blueprint('main', __name__)
 # IMPORTANT : leave the root route to the Elastic Beanstalk Load Balancer health check, it performs a GET to '/' every 5 seconds and expects a '200'
 @main_bp.route('/', methods=['GET'])
 def EB_healthcheck():
-    return 'OK', 200
+    """
+    Endpoint for performing a health check of the application.
 
-# @main_bp.route('/register', methods=['POST'])
-# def register_user():
-#     try:
-        
-#         data = request.get_json()
-#         print('\n\nData\n\n',data,'\n\n')
-#         new_user = User(
-#             email = data["email"],
-#             age = data["age"],
-#             timestamp = datetime.utcnow()
-#         )
-#         db.session.add(new_user)
-#         db.session.commit()
-#         return 'User added', 200
-#     except Exception as e:
-#         db.session.rollback()
-#         return f'An error occurred: {str(e)}', 500
+    Returns:
+        str: A string indicating the health status of the application.
+    """
+    return 'OK', 200
     
 
 @main_bp.route('/group_issues', methods=['GET'])
 def group_issues():
+    """
+    Group issues based on the specified criteria and return the grouped results as JSON.
+
+    Returns:
+        A JSON response containing the grouped issues.
+
+    Raises:
+        Exception: If an error occurs during the grouping process.
+    """
     try:
         # Get query parameters
         group_by = request.args.get('group_by')
@@ -70,6 +67,13 @@ def group_issues():
 
 @main_bp.route('/list', methods=['GET'])
 def list_users():
+    """
+    Retrieve a list of all issues.
+
+    Returns:
+        A JSON response containing a list of serialized user objects.
+        If an error occurs, a string with the error message and a 500 status code.
+    """
     try:
         issues = db.session.query(Issue).all()
         # calling the __str__ representation defined in the User model 
@@ -80,6 +84,15 @@ def list_users():
 
 @main_bp.route('/generate_llm_response', methods=['POST'])
 def generate_llm_response():
+    """
+    Generate LLM response based on the provided parameters and cache it.
+
+    Returns:
+        A JSON response containing a success message and the generated LLM response.
+
+    Raises:
+        Exception: If an error occurs during the process.
+    """
     data = request.get_json()
 
     # Extract required parameters from the request
@@ -116,6 +129,17 @@ def handle_llm_response(rule_info, issue_message, file, line, commit_hash, blame
 
 @main_bp.route('/test_llm', methods=['GET'])
 def test_llm():
+    """
+    Retrieve and serialize an issue by ID, along with its associated blame data.
+
+    Args:
+        id (int): The ID of the issue to retrieve.
+
+    Returns:
+        A JSON response containing the serialized issue data and associated blame data.
+        If the issue is not found, a JSON response with an error message and status code 404 is returned.
+        If an error occurs during the retrieval process, a string with the error message and status code 500 is returned.
+    """
     try:
         id = 5 
         # Retrieve the specific issue by ID

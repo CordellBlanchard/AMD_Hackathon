@@ -70,6 +70,23 @@ class Blame(db.Model):
         }
 
 class Rule(db.Model): 
+    """
+    Represents a rule in the system.
+
+    Attributes:
+        id (str): The unique identifier of the rule.
+        name (str): The name of the rule.
+        shortDescription (str): A shorter description of the rule.
+        fullDescription (str): The complete description of the rule.
+        enabled (str): Indicates whether the rule is enabled or not.
+        level (str): The level of the rule.
+        tags (list): The tags associated with the rule.
+        kind (str): The kind of the rule.
+        precision (str): The precision of the rule.
+        security_severity (str): The security severity of the rule.
+        sub_severity (str): The sub severity of the rule.
+    """
+
     id = db.Column(db.String, primary_key=True) # Changed from Integer to String to accommodate the hash
     name = db.Column(db.String, nullable=False) # Rule name
     shortDescription = db.Column(db.String, nullable=False) # Shorter description of rule 
@@ -83,6 +100,12 @@ class Rule(db.Model):
     sub_severity = db.Column(db.String, nullable=True) # Sub severity of the rule 
 
     def serialize(self):
+        """
+        Serializes the rule object into a dictionary.
+
+        Returns:
+            dict: A dictionary representation of the rule object.
+        """
         return {
             'id': self.id,
             'name': self.name,
@@ -97,13 +120,34 @@ class Rule(db.Model):
             'sub-severity': self.sub_severity
         }
     
-class LLMCache(db.Model): 
-    id = db.Column(db.Integer, primary_key=True)  
-    suggestion = db.Column(db.Text, nullable=False) 
+class LLMCache(db.Model):
+    """
+    Represents a LLMCache object.
+
+    Attributes:
+        id (int): The unique identifier for the LLMCache.
+        suggestion (str): The suggestion associated with the LLMCache.
+        blame_id (int): The foreign key referencing the associated Blame object.
+        blame (Blame): The associated Blame object.
+
+    Methods:
+        serialize(): Serializes the LLMCache object into a dictionary.
+
+    """
+
+    id = db.Column(db.Integer, primary_key=True)
+    suggestion = db.Column(db.Text, nullable=False)
     blame_id = db.Column(db.Integer, db.ForeignKey('blame.id'), nullable=False)
     blame = db.relationship('Blame', backref=db.backref('llm_caches', lazy=True))
 
     def serialize(self):
+        """
+        Serializes the LLMCache object into a dictionary.
+
+        Returns:
+            dict: A dictionary representation of the LLMCache object.
+
+        """
         return {
             'id': self.id,
             'blame_id': self.blame_id,
@@ -113,11 +157,28 @@ class LLMCache(db.Model):
 
 
 class SarifFile(db.Model):  
+    """
+    Represents a SARIF file in the database.
+
+    Attributes:
+        id (int): The unique identifier for the SARIF file.
+        sarif_file (str): The path or name of the SARIF file.
+        date (datetime): The date when the SARIF file was created.
+
+    Methods:
+        serialize: Returns a dictionary representation of the SARIF file object.
+    """
     id = db.Column(db.Integer, primary_key=True)  
     sarif_file = db.Column(db.String)  
     date = db.Column(db.DateTime)
 
     def serialize(self):
+        """
+        Returns a dictionary representation of the SARIF file object.
+
+        Returns:
+            dict: A dictionary containing the serialized SARIF file data.
+        """
         return {
             'id': self.id,
             'sarif_file': self.sarif_file

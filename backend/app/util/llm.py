@@ -1,15 +1,15 @@
-from blame_api import Repo, getLineInfo
-from sarif_parser import parse_sarif_file 
+from app.util.blame_api import Repo, getLineInfo
+from app.util.sarif_parser import parse_sarif_file 
 import os 
 from openai import OpenAI
 from time import perf_counter 
 import json 
 from app import db
-import jsonify 
+from flask import jsonify 
 
 from app.models.models import Issue, Blame, LLMCache
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY")) 
+client = OpenAI(api_key="sk-proj-dYtI05KnbCY2c1odJAS8T3BlbkFJtdlgLGWhStbytYIybVvc") 
 
 def get_llm_response(rule_info: str, issue_message: str, file: str, line: int, commit_hash: str):  
 

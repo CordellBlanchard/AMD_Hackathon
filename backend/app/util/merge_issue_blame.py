@@ -6,6 +6,16 @@ from app.util.sarif_parser import parse_sarif_file
 from app.util.blame_api import Repo, getLineInfo    
 
 def resolve_issues(new_dict):
+    """
+    Resolves issues based on the provided dictionary of new information.
+
+    Args:
+        new_dict (dict): A dictionary containing new information for the issues.
+
+    Returns:
+        None
+
+    """
     # Get all unresolved issues from the database
     unresolved_issues = Issue.query.filter_by(resolved=False).all()
 
@@ -31,6 +41,16 @@ def resolve_issues(new_dict):
     db.session.commit()
   
 def resolve_rules(rules_broken):
+    """
+    Resolves the broken rules by updating the rule information in the database.
+
+    Args:
+        rules_broken (dict): A dictionary containing the broken rule information.
+
+    Returns:
+        None
+    """
+
     # Get all rules from the database
     rules = Rule.query.all()
 
@@ -56,6 +76,15 @@ def resolve_rules(rules_broken):
     db.session.commit()
 
 def merge_sarif(sarif_file_name):  
+    """
+    Merges the information from a SARIF file and git blame into the database.
+
+    Args:
+        sarif_file_name (str): The name of the SARIF file to be merged.
+
+    Returns:
+        None
+    """
     # pase the sarif file
     new_dict, rules_broken = parse_sarif_file(sarif_file_name) 
 
