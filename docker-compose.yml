@@ -37,6 +37,18 @@ services:
     volumes:
       - ./backend/app:/app/app
 
+  frontend:
+    build: ./frontend  # Assuming Dockerfile is located in the frontend directory
+    container_name: frontend
+    ports:
+      - "80:8080"
+    depends_on:
+      - flask-backend
+    environment:
+      - NODE_ENV=development  # You can set this to production if needed
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
 volumes:
   # to persist the database tables
   db-volume:
