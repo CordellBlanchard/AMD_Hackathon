@@ -14,7 +14,7 @@ const IssuesList = (props) => {
       return issues;
     }
     const filtered = issues.filter((issue) => {
-      if (issue.rule.name.toLowerCase().includes(filter.toLowerCase())) {
+      if (issue.rule[0].name.toLowerCase().includes(filter.toLowerCase())) {
         return true;
       }
       for (const blame of issue.blames) {
@@ -48,7 +48,7 @@ const IssuesList = (props) => {
         >
           {issue.resolved ? "Resolved" : "Active"}
         </Badge>
-        <div className="text-start mb-2 text-warning">{issue.rule.name}</div>
+        <div className="text-start mb-2 text-warning">{issue.rule[0].name}</div>
         {issue.blames.map((blame) => (
           <div
             className="border rounded p-2 bg-black bg-opacity-25 text-nowrap blamelist text-truncate text-end blame-box"
@@ -64,6 +64,8 @@ const IssuesList = (props) => {
 
   return (
     <div className="sticky-top">
+            {
+      props.activeTab === "Issues" ? (<div>
       <div className="mb-2">
         <Row>
           <Col sm="2">
@@ -96,6 +98,7 @@ const IssuesList = (props) => {
       >
         {renderIssues()}
       </div>
+      </div>) : ""}
     </div>
   );
 };

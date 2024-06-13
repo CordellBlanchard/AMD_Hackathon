@@ -57,6 +57,7 @@ const CodePanel = (props) => {
       setCodeString(code);
       setLoading(false);
     }).catch((error)=>{setLoading(false)});
+    // TODO: lines[0] is temporary, need to assign line number to corresponding files once multi-line display is implemented
     setHighlights([
       [props.blame.issue.lines[0], props.blame.issue.lines[0]],
     ]);
@@ -122,9 +123,9 @@ const CodePanel = (props) => {
             {i === expand ? (
               <div className="text-start m-2 border rounded p-2 bg-secondary bg-opacity-25">
                 <Badge className="float-end">Resolved</Badge>
-                <div className="">Issue: <span className="text-warning">{props.blame.issue.rule} </span></div>
-                <div className="">Description: </div>
-                <div className="">Severity: </div>
+                <div className="">Issue: <span className="text-warning">{props.blame.issue.rule[0].name} </span></div>
+                <div className="">Description: <span className="text-warning">{props.blame.issue.rule[0].fullDescription} </span></div>
+                <div className="">Severity: <span className="text-warning">{props.blame.issue.rule[0]["security-severity"]} </span></div>
                 <div className="">Author: <span className="text-warning">{props.blame.blame.author_name} ({props.blame.blame.author_email})</span></div>
                 <div className="">Commit: <span className="text-warning">{props.blame.blame.commit_oid}</span></div>
                 <div className="">AI Assistant: </div>

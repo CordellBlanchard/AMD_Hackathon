@@ -17,7 +17,6 @@ function App() {
       <NavigationTabs activeTab={activeTab} setActiveTab={setActiveTab} />
         <Row className="flex-nowrap">
           <Col sm={blame ? "4" : null}>
-          <AuthorsList setBlame={setBlame} blame={blame} activeTab={activeTab} />
             <IssuesList setBlame={setBlame} blame={blame} activeTab={activeTab} />
 
           </Col>
