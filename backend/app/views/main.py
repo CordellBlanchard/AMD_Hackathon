@@ -1,8 +1,11 @@
 from flask import Blueprint, request, jsonify
+from sqlalchemy import or_, func
+
 from app import db
 #from app.models.models import User
-from app.models.models import Issue
+from app.models.models import Issue, Blame, issue_blame
 from datetime import datetime 
+from collections import defaultdict
 from app.util.llm import get_llm_response, create_cache 
 
 main_bp = Blueprint('main', __name__)
@@ -29,7 +32,41 @@ def EB_healthcheck():
 #     except Exception as e:
 #         db.session.rollback()
 #         return f'An error occurred: {str(e)}', 500
+    
 
+@main_bp.route('/group_issues', methods=['GET'])
+def group_issues():
+    try:
+        # Get query parameters
+        group_by = request.args.get('group_by')
+
+        # Start with all Issues
+        query = db.session.query(Issue, Blame).select_from(Issue).join(issue_blame).join(Blame)
+
+        if group_by:
+            if group_by == 'id':
+                # Group by issue id
+                query = query.order_by(Issue.id)
+            elif group_by == 'rule':
+                # Group by rule id
+                query = query.order_by(Issue.rule)
+            elif group_by in ['file', 'author_name']:
+                # Group by blame file or author name
+                query = query.order_by(getattr(Blame, group_by))
+        
+        # Execute the query
+        issue_blame_pairs = query.all()
+
+        # Group the results
+        grouped_issues = defaultdict(list)
+        for issue, blame in issue_blame_pairs:
+            key = getattr(issue if group_by in ['id', 'rule'] else blame, group_by)
+            grouped_issues[key].append(issue.serialize())
+
+        return jsonify(grouped_issues)
+    except Exception as e:
+        db.session.rollback()
+        return f'An error occurred: {str(e)}', 500
 
 @main_bp.route('/list', methods=['GET'])
 def list_users():
