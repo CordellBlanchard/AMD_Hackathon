@@ -124,4 +124,5 @@ if __name__ == "__main__":
     repo = Repo("tensorflow", "tensorflow")
     blame, line_content = getLineInfo(repo, "5a7786812dd4cb4511e8ef85b12017cf3d2ae08d", "tensorflow/python/keras/utils/data_utils.py", 135)
     print(blame)
+    print(blame['startingLine'])
     print(line_content)
