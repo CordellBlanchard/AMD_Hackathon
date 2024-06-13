@@ -18,6 +18,7 @@ class Issue(db.Model):
     date = db.Column(db.DateTime, nullable=True)  # Date of the committ
     resolved = db.Column(db.Boolean, default=False)  # Whether the issue is resolved or not
     blames = db.relationship('Blame', secondary=issue_blame, backref=db.backref('issues', lazy=True))
+    rule = db.relationship('Rule', backref=db.backref('issues', lazy=True))
 
     def serialize(self):
         return {
@@ -31,7 +32,8 @@ class Issue(db.Model):
             'commit': self.commit,
             'date': self.date,
             'resolved': self.resolved,
-            'blames': [blame.serialize() for blame in self.blames]
+            'blames': [blame.serialize() for blame in self.blames], 
+            'rule': self.rule.serialize()
         }
 
 class Blame(db.Model):
