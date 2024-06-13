@@ -129,7 +129,6 @@ def generate_llm_response():
 
 def handle_llm_response(rule_info, issue_message, file, line, commit_hash, blame_id):
     try:
-        llm_response = 0
         # Generate the LLM response
         response = get_llm_response(rule_info, issue_message, file, line, commit_hash)
 

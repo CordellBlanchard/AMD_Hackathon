@@ -9,7 +9,7 @@ from flask import jsonify
 
 from app.models.models import Issue, Blame, LLMCache 
 
-client = OpenAI(api_key='sk-proj-dYtI05KnbCY2c1odJAS8T3BlbkFJtdlgLGWhStbytYIybVvc') 
+client = OpenAI(api_key='sk-proj-dSNli4ynufxIIrh4dhIuT3BlbkFJSxJNuPUeM2yhF2cyvAnA') 
 
 def get_llm_response(rule_info: str, issue_message: str, file: str, line: int, commit_hash: str):  
 
@@ -27,6 +27,8 @@ def get_llm_response(rule_info: str, issue_message: str, file: str, line: int, c
     print('GENERATING CODE CONTEXT')
 
     commit_hash = getFullHashFromPartial(repo, commit_hash)
+
+    print(commit_hash)
 
     # Use 5 lines above and below the line to get the context 
     codes = [] 
