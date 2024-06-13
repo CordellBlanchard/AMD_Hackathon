@@ -186,37 +186,3 @@ def create_initial_fix(sarif_path: str, llm_report_path = 'llm_report.txt', hist
             # Save the history to a JSON file
             with open(history_path, 'w') as history_file:
                 json.dump(conversation_history, history_file) 
-
-def test_llm():  
-    id = 5 
-    try:
-        # Retrieve the specific issue by ID
-        issue = Issue.query.get(id)
-        if not issue:
-            return jsonify({"error": "Issue not found"}), 404
-
-        # Serialize the issue data
-        issue_data = issue.serialize()
-
-        # Access the first blame associated with the issue
-        if issue.blames:
-            first_blame = issue.blames[0]
-            first_blame_data = {
-                'id': first_blame.id,
-                'file': first_blame.file,
-                'starting_line': first_blame.starting_line
-            }
-        else:
-            first_blame_data = None
-
-        # Combine the issue data and first blame data
-        result = {
-            'issue': issue_data,
-            'first_blame': first_blame_data
-        }
-
-        return jsonify(result), 200
-
-    except Exception as e:
-        db.session.rollback()
-        return f'An error occurred: {str(e)}', 500

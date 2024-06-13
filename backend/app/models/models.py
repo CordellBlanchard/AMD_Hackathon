@@ -13,7 +13,7 @@ class Issue(db.Model):
     lines = db.Column(db.PickleType, nullable=True)  # List of lines
     start_columns = db.Column(db.PickleType, nullable=True)  # List of start columns
     end_columns = db.Column(db.PickleType, nullable=True)  # List of end columns
-    rule = db.Column(db.String, nullable=True)  # Rule ID
+    # rule = db.Column(db.String, nullable=True)  # Rule ID 
     commit = db.Column(db.String, nullable=True)  # Commit hash
     date = db.Column(db.DateTime, nullable=True)  # Date of the committ
     resolved = db.Column(db.Boolean, default=False)  # Whether the issue is resolved or not

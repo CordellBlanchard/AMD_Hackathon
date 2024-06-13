@@ -69,3 +69,43 @@ def generate_llm_response():
     except Exception as e:
         db.session.rollback()
         return f'An error occurred: {str(e)}', 500
+
+@main_bp.route('/test_llm', methods=['GET'])
+def test_llm(id):
+    try:
+        id = 5 
+        # Retrieve the specific issue by ID
+        issue = Issue.query.get(id)
+        if not issue:
+            return jsonify({"error": "Issue not found"}), 404
+
+        # Serialize the issue data
+        issue_data = issue.serialize()
+
+        # Access the first blame associated with the issue
+        if issue.blames: 
+            first_blame = issue.blames[0]
+            first_blame_data = {
+                'id': first_blame.id,
+                'file': first_blame.file,
+                'starting_line': first_blame.starting_line
+            }
+        else:
+            first_blame_data = None
+
+     
+        # Combine the issue data and first blame data
+        result = {
+            'commit_hash': issue.commit, 
+            'issue_message': issue.description, 
+            'blame_id': issue.blames[0].id,
+            'file': issue.blames[0].file, 
+            'line': issue.blames[0].starting_line, 
+            'rule_info': issue.rule.fullDescription
+        } 
+
+        return jsonify(result), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return f'An error occurred: {str(e)}', 500
