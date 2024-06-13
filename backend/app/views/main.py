@@ -204,3 +204,13 @@ def get_rule(rule_id):
         return jsonify(rule.serialize())
     except Exception as e:
         db.session.rollback()
+
+# based on the models, please implement an endpoint that returns all blames grouped by authors
+@main_bp.route('/blames_by_author', methods=['GET'])
+def list_blames_by_author():
+    try:
+        blames = db.session.query(Issue.author, db.func.count(Issue.author)).group_by(Issue.author).all()
+        return jsonify([{'author': b[0], 'count': b[1]} for b in blames])
+    except Exception as e:
+        db.session.rollback()
+        return f'An error occurred: {str(e)}', 500
