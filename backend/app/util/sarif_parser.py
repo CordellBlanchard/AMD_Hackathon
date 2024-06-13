@@ -27,6 +27,7 @@ def parse_sarif_file(file_path):
     date = file_name_to_date(file_path)
     
     unique_results = {} 
+    rules_broken = {}
 
     for run in sarif_data.runs: 
         for result in run.get_results():  
@@ -46,14 +47,17 @@ def parse_sarif_file(file_path):
                 unique_results[id]['lines'] = [result['locations'][0]['physicalLocation']['region']['startLine']]
                 unique_results[id]['start_columns'] = [result['locations'][0]['physicalLocation']['region']['startColumn']]
                 unique_results[id]['end_columns'] = [result['locations'][0]['physicalLocation']['region']['endColumn']]
-                unique_results[id]['rule'] = result['rule']['id']
+                unique_results[id]['ruleId'] = result['ruleId']
                 unique_results[id]['description'] = result['message']['text']
                 unique_results[id]['commit'] = commit  
                 unique_results[id]['date'] = date
                 unique_results[id]['resolved'] = False
                 # unique_results[id]['resolved_commit'] = None
+
+        rules_broken_list = run.run_data["tool"]["driver"]["rules"]
+        rules_broken.update({rule['id']: rule for rule in rules_broken_list})
     
-    return unique_results
+    return unique_results, rules_broken
 
 def update_old_state(new_state: dict, old_state: dict): 
     for key in old_state.keys(): 
@@ -72,8 +76,8 @@ def update_old_state(new_state: dict, old_state: dict):
     return old_state 
 
 def get_updated_state(old_file_path: str, new_file_path: str): 
-    old_results = parse_sarif_file(old_file_path) 
-    unique_results = parse_sarif_file(new_file_path) 
+    old_results, _ = parse_sarif_file(old_file_path) 
+    unique_results, _ = parse_sarif_file(new_file_path) 
     latest_dict = update_old_state(unique_results, old_results)
 
     return latest_dict 
@@ -81,11 +85,13 @@ def get_updated_state(old_file_path: str, new_file_path: str):
 
 if __name__ == "__main__":
 
-    sarif_file_name = '../database/database-d25dd807485c-2020-01-03.sarif'
-    old_sarif_file_name = '../database/database-b8b8ebcf851d-2017-04-11.sarif' 
+    sarif_file_name = 'backend/app/database/database-d25dd807485c-2020-01-03.sarif'
+    old_sarif_file_name = 'backend/app/database/database-b8b8ebcf851d-2017-04-11.sarif' 
     latest_dict = get_updated_state(old_sarif_file_name, sarif_file_name) 
+    _, rules = parse_sarif_file(sarif_file_name) 
+    print(rules) 
 
-    print(latest_dict)
+    # print(latest_dict)
 
 
 

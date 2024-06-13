@@ -7,4 +7,5 @@ Werkzeug==3.0.1
 ApScheduler==3.10.4
 sarif-tools==2.0.0
 requests==2.32.3
-tqdm==4.66.4
+tqdm==4.66.4 
+openai==1.34.0
