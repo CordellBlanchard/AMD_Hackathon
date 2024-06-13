@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app import db
 #from app.models.models import User
-from app.models.models import Issue
+from app.models.models import Issue, Rule
 from datetime import datetime
 
 main_bp = Blueprint('main', __name__)
@@ -36,6 +36,27 @@ def list_users():
         issues = db.session.query(Issue).all()
         # calling the __str__ representation defined in the User model 
         return jsonify([i.serialize() for i in issues])
+    except Exception as e:
+        db.session.rollback()
+        return f'An error occurred: {str(e)}', 500
+    
+   
+# Create endpoint to retrieve rule information
+@main_bp.route('/rules', methods=['GET'])
+def list_rules():
+    try:
+        rules = db.session.query(Rule).all()
+        return jsonify([r.serialize() for r in rules])
+    except Exception as e:
+        db.session.rollback()
+        return f'An error occurred: {str(e)}', 500    
+    
+# Query the database for a specific rule 
+@main_bp.route('/rule/<rule_id>', methods=['GET'])
+def get_rule(rule_id):
+    try:
+        rule = db.session.query(Rule).filter_by(id=rule_id).all()
+        return jsonify(rule.serialize())
     except Exception as e:
         db.session.rollback()
         return f'An error occurred: {str(e)}', 500

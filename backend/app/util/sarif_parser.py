@@ -47,14 +47,15 @@ def parse_sarif_file(file_path):
                 unique_results[id]['lines'] = [result['locations'][0]['physicalLocation']['region']['startLine']]
                 unique_results[id]['start_columns'] = [result['locations'][0]['physicalLocation']['region']['startColumn']]
                 unique_results[id]['end_columns'] = [result['locations'][0]['physicalLocation']['region']['endColumn']]
-                unique_results[id]['rule'] = result['rule']['id']
+                unique_results[id]['ruleId'] = result['ruleId']
                 unique_results[id]['description'] = result['message']['text']
                 unique_results[id]['commit'] = commit  
                 unique_results[id]['date'] = date
                 unique_results[id]['resolved'] = False
                 # unique_results[id]['resolved_commit'] = None
 
-        rules_broken = run.run_data["tool"]["driver"]["rules"]
+        rules_broken_list = run.run_data["tool"]["driver"]["rules"]
+        rules_broken.update({rule['id']: rule for rule in rules_broken_list})
     
     return unique_results, rules_broken
 
