@@ -1,4 +1,4 @@
-from app.util.blame_api import Repo, getLineInfo, getFullHashFromPartial
+from app.util.blame_api import Repo, getLineInfo
 from app.util.sarif_parser import parse_sarif_file 
 import os 
 from openai import OpenAI
