@@ -1,7 +1,8 @@
 import requests
+from concurrent.futures import ThreadPoolExecutor
 
 # Your personal access token
-TOKEN = 'YOUR TOKEN'
+TOKEN = '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'
 
 # The GraphQL endpoint
 URL = 'https://api.github.com/graphql'
@@ -22,11 +23,24 @@ def getLine(repo, commit_hash, file_path, line_number):
         content = response.text
         lines = content.split('\n')
         if line_number <= len(lines):
-
-            print(lines[line_number - 1])
             return lines[line_number - 1]
         else:
             return None
+    else:
+        print(f"Error: {response.status_code}")
+        return None
+    
+def getFullHashFromPartial(repo, partial_hash):
+    url = f"https://api.github.com/repos/{repo.owner}/{repo.name}/commits/{partial_hash}"
+    headers = {
+        "Accept": "application/vnd.github.v3+json",
+        "Authorization": f"token {TOKEN}"  # If authentication is required
+    }
+
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        return response.json()['sha']
     else:
         print(f"Error: {response.status_code}")
         return None
@@ -97,12 +111,17 @@ class Repo():
         self.name = name
 
 def getLineInfo(repo, commit_hash, file_path, line_number):
-    blame = getBlame(repo, commit_hash, file_path, line_number)
-    line_content = getLine(repo, commit_hash, file_path, line_number)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        future_blame = executor.submit(getBlame, repo, commit_hash, file_path, line_number)
+        future_line_content = executor.submit(getLine, repo, commit_hash, file_path, line_number)
+
+    blame = future_blame.result()
+    line_content = future_line_content.result()
+
     return blame, line_content
 
 if __name__ == "__main__":
-    repo = Repo("TimMensch", "MidiPlayerJS")
-    blame, line_content = getLineInfo(repo, "8ae2ee30d9796fab81ef4c58c210bacdd54ed8c4", "package.json", 5)
+    repo = Repo("tensorflow", "tensorflow")
+    blame, line_content = getLineInfo(repo, "5a7786812dd4cb4511e8ef85b12017cf3d2ae08d", "tensorflow/python/keras/utils/data_utils.py", 135)
     print(blame)
     print(line_content)
