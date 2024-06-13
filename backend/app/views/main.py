@@ -47,7 +47,7 @@ def group_issues():
                 query = query.order_by(Issue.id)
             elif group_by == 'rule':
                 # Group by rule id
-                query = query.order_by(Issue.rule)
+                query = query.order_by(getattr(Rule, 'id'))
             elif group_by in ['file', 'author_name']:
                 # Group by blame file or author name
                 query = query.order_by(getattr(Blame, group_by))
@@ -57,8 +57,11 @@ def group_issues():
 
         # Group the results
         grouped_issues = defaultdict(list)
-        for issue, blame in issue_blame_pairs:
-            key = getattr(issue if group_by in ['id', 'rule'] else blame, group_by)
+        for issue, blame, rule in issue_blame_pairs:
+            if group_by == 'rule':
+                key = rule.id
+            else:
+                key = getattr(issue if group_by == 'id' else blame, group_by)
             grouped_issues[key].append(issue.serialize())
 
         return jsonify(grouped_issues)
