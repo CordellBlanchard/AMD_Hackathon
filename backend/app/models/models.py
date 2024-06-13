@@ -60,6 +60,33 @@ class Blame(db.Model):
             'file': self.file
         }
     
+class Rule(db.Model): 
+    id = db.Column(db.String, primary_key=True) # Changed from Integer to String to accommodate the hash
+    name = db.Column(db.String, nullable=False) # Rule name
+    shortDescription = db.Column(db.String, nullable=False) # Shorter description of rule 
+    fullDescription = db.Column(db.String, nullable=False) # Complete description of rule 
+    enabled = db.Column(db.String, nullable=False) # Whether the rule is enabled or not
+    level = db.Column(db.String, nullable=False) # Level of the rule
+    tags = db.Column(db.PickleType, nullable=False) # Tags associated with the rule
+    kind = db.Column(db.String, nullable=False) # Kind of the rule
+    precision = db.Column(db.String, nullable=False) # Precision of the rule
+    security_severity = db.Column(db.String, nullable=False) # Security severity of the rule
+    sub_severity = db.Column(db.String, nullable=False) # Sub severity of the rule 
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'shortDescription': self.shortDescription,
+            'fullDescription': self.fullDescription,
+            'enabled': self.enabled,
+            'level': self.level,
+            'tags': self.tags,
+            'kind': self.kind,
+            'precision': self.precision,
+            'security-severity': self.security_severity,
+            'sub-severity': self.sub_severity
+        }
 
 class SarifFile(db.Model):  
     id = db.Column(db.Integer, primary_key=True)  
