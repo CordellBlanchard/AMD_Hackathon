@@ -47,7 +47,7 @@ def group_issues():
                 query = query.order_by(Issue.id)
             elif group_by == 'rule':
                 # Group by rule id
-                query = query.order_by(Issue.rule)
+                query = query.order_by(getattr(Rule, 'id'))
             elif group_by in ['file', 'author_name']:
                 # Group by blame file or author name
                 query = query.order_by(getattr(Blame, group_by))
@@ -57,8 +57,11 @@ def group_issues():
 
         # Group the results
         grouped_issues = defaultdict(list)
-        for issue, blame in issue_blame_pairs:
-            key = getattr(issue if group_by in ['id', 'rule'] else blame, group_by)
+        for issue, blame, rule in issue_blame_pairs:
+            if group_by == 'rule':
+                key = rule.id
+            else:
+                key = getattr(issue if group_by == 'id' else blame, group_by)
             grouped_issues[key].append(issue.serialize())
 
         return jsonify(grouped_issues)
@@ -136,7 +139,7 @@ def handle_llm_response(rule_info, issue_message, file, line, commit_hash, blame
 
     except Exception as e:
         db.session.rollback()
-        return {"error": f'An error occurred: {str(e)}'}, 500
+        return {"error ": f'An error occurred: {str(e)}'}, 500
 
 
 @main_bp.route('/test_llm', methods=['GET'])
@@ -153,14 +156,16 @@ def test_llm():
         If an error occurs during the retrieval process, a string with the error message and status code 500 is returned.
     """
     try:
-        id = 5 
+        id = '3680e0d6cadd14ee:1' 
         # Retrieve the specific issue by ID
         issue = Issue.query.get(id)
         if not issue:
             return jsonify({"error": "Issue not found"}), 404
 
         # Serialize the issue data
-        issue_data = issue.serialize()
+        issue_data = issue.serialize() 
+
+        print('CHECK THIS:', issue.rule)
 
         # Access the first blame associated with the issue
         first_blame = issue.blames[0] if issue.blames else None
@@ -169,7 +174,7 @@ def test_llm():
         blame_id = issue.blames[0].id
         file = issue.blames[0].file
         line =  issue.blames[0].starting_line
-        rule_info = issue.rule.fullDescription
+        rule_info = issue.rule[0].fullDescription
 
         # Use the helper function
         result, status_code = handle_llm_response(rule_info, issue_message, file, line, commit_hash, blame_id)
