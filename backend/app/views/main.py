@@ -3,7 +3,7 @@ from sqlalchemy import or_, func
 
 from app import db
 #from app.models.models import User
-from app.models.models import Issue, Blame, issue_blame, LLMCache
+from app.models.models import Issue, Blame, issue_blame, LLMCache, Rule
 from datetime import datetime 
 from collections import defaultdict
 from app.util.llm import get_llm_response, create_cache 
@@ -154,3 +154,23 @@ def test_llm():
         db.session.rollback()
         return f'An error occurred: {str(e)}', 500
     
+
+    
+    # Create endpoint to retrieve rule information
+@main_bp.route('/rules', methods=['GET'])
+def list_rules():
+    try:
+        rules = db.session.query(Rule).all()
+        return jsonify([r.serialize() for r in rules])
+    except Exception as e:
+        db.session.rollback()
+        return f'An error occurred: {str(e)}', 500    
+    
+# Query the database for a specific rule 
+@main_bp.route('/rule/<rule_id>', methods=['GET'])
+def get_rule(rule_id):
+    try:
+        rule = db.session.query(Rule).filter_by(id=rule_id).all()
+        return jsonify(rule.serialize())
+    except Exception as e:
+        db.session.rollback()
