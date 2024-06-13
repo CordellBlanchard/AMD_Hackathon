@@ -1,0 +1,25 @@
+----------------------------------------------------
+Issue ID: 3680e0d6cadd14ee:1
+Rule Violated: py/insecure-temporary-file
+Rule Description: Creating a temporary file using this method may be insecure.
+Suggested fix: 1) The issue in the code context provided is that the code is using a deprecated function `tempfile.mktemp` to create a temporary file. This function is not secure because it creates a temporary file with a unique name in the most secure manner, but it does not open the file. This might lead to a situation where someone else might open the file between the time `mktemp` creates the file and you try to open it, leading to potential security vulnerabilities.
+
+2) A fix for the code context would be to replace `tempfile.mktemp` with `tempfile.NamedTemporaryFile`. This function is safer as it creates, opens, and returns the file object securely without any time gap where someone else might intercept the process. Here's how to modify the code:
+
+```python
+if len(argv) > 1:
+    raise app.UsageError('Too many command-line arguments.')
+if FLAGS.save_model_path:
+    save_model_path = FLAGS.save_model_path
+else:
+    with tempfile.NamedTemporaryFile(suffix='.saved_model', delete=False) as temp:
+        save_model_path = temp.name
+
+signature_def_map, init_op, assets_collection = create_signature()
+
+sess = tf.Session()
+```
+
+3) The fix is the best solution because `tempfile.NamedTemporaryFile` creates a temporary file in the most secure manner possible. It also opens the file immediately after creation, reducing the time window where someone else might be able to open the file. The parameter `delete=False` is used to ensure that the file is not deleted when it is closed, as we want it to persist until it is explicitly deleted later. This change makes your code safer and more reliable, and eliminates the security vulnerability that the `tempfile.mktemp` function presents.
+
+----------------------------------------------------
