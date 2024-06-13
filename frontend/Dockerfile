@@ -2,6 +2,8 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+RUN npm config set strict-ssl false
+RUN npm config set registry http://registry.npmjs.org/ 
 
 # Copy the package.json and package-lock.json files to the working directory
 COPY package*.json ./
