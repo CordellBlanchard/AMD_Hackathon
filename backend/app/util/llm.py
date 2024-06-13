@@ -1,4 +1,4 @@
-from app.util.blame_api import Repo, getLineInfo
+from app.util.blame_api import Repo, getLineInfo, getFullHashFromPartial
 from app.util.sarif_parser import parse_sarif_file 
 import os 
 from openai import OpenAI
@@ -24,6 +24,10 @@ def get_llm_response(rule_info: str, issue_message: str, file: str, line: int, c
 
     repo = Repo("tensorflow", "tensorflow") 
 
+    print('GENERATING CODE CONTEXT')
+
+    commit_hash = getFullHashFromPartial(repo, commit_hash)
+
     # Use 5 lines above and below the line to get the context 
     codes = [] 
     for i in range(-5, 5): 
@@ -48,8 +52,11 @@ def get_llm_response(rule_info: str, issue_message: str, file: str, line: int, c
     2) Explain why your fix is the best solution for the issue.
     """
 
+    print('STARTING QUERYING')
+
     # Call GPT4 
     start = perf_counter() 
+
     response = client.chat.completions.create( 
         messages= [
             {
@@ -68,7 +75,9 @@ def get_llm_response(rule_info: str, issue_message: str, file: str, line: int, c
         top_p=1,
         frequency_penalty=0,
         presence_penalty=0
-    ) 
+    )  
+
+    print('FINISHED QUERYING')
 
     suggestion = response.choices[0].message.content.strip() 
 

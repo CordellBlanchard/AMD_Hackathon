@@ -126,6 +126,7 @@ def generate_llm_response():
 
 def handle_llm_response(rule_info, issue_message, file, line, commit_hash, blame_id):
     try:
+        llm_response = 0
         # Generate the LLM response
         response = get_llm_response(rule_info, issue_message, file, line, commit_hash)
 
@@ -136,7 +137,7 @@ def handle_llm_response(rule_info, issue_message, file, line, commit_hash, blame
 
     except Exception as e:
         db.session.rollback()
-        return {"error": f'An error occurred: {str(e)}'}, 500
+        return {"error ": f'An error occurred: {str(e)}'}, 500
 
 
 @main_bp.route('/test_llm', methods=['GET'])
