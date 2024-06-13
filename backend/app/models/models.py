@@ -2,7 +2,7 @@ from app import db
 
 # Many-to-many relationship between Issue and Blame
 issue_blame = db.Table('issue_blame',
-    db.Column('issue_id', db.Integer, db.ForeignKey('issue.id'), primary_key=True),
+    db.Column('issue_id', db.String, db.ForeignKey('issue.id'), primary_key=True),
     db.Column('blame_id', db.Integer, db.ForeignKey('blame.id'), primary_key=True)
 )
 
@@ -19,8 +19,20 @@ class Issue(db.Model):
     resolved = db.Column(db.Boolean, default=False)  # Whether the issue is resolved or not
     blames = db.relationship('Blame', secondary=issue_blame, backref=db.backref('issues', lazy=True))
 
-    def __repr__(self):
-        return f'<Issue {self.title}>'
+    def serialize(self):
+        return {
+            'id': self.id,
+            'description': self.description,
+            'files': self.files,
+            'lines': self.lines,
+            'start_columns': self.start_columns,
+            'end_columns': self.end_columns,
+            'rule': self.rule,
+            'commit': self.commit,
+            'date': self.date,
+            'resolved': self.resolved,
+            'blames': [blame.serialize() for blame in self.blames]
+        }
 
 class Blame(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -34,14 +46,25 @@ class Blame(db.Model):
     line_content = db.Column(db.String, nullable=False)  # Content of the line
     file = db.Column(db.String, nullable=False)  # File name
 
-
-    def __repr__(self):
-        return f'<Blame {self.name}>'
+    def serialize(self):
+        return {
+            'id': self.id,
+            'commit_oid': self.commit_oid,
+            'author_name': self.author_name,
+            'author_email': self.author_email,
+            'authored_date': self.authored_date,
+            'authored_by_committer': self.authored_by_committer,
+            'starting_line': self.starting_line,
+            'ending_line': self.ending_line,
+            'line_content': self.line_content,
+            'file': self.file
+        }
     
 
 class SarifFile(db.Model):  
     id = db.Column(db.Integer, primary_key=True)  
     sarif_file = db.Column(db.String)  
+    date = db.Column(db.DateTime)
 
     def serialize(self):
         return {
