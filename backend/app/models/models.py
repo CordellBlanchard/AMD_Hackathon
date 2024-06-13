@@ -68,7 +68,7 @@ class Blame(db.Model):
             'line_content': self.line_content,
             'file': self.file
         }
-    
+
 class Rule(db.Model): 
     id = db.Column(db.String, primary_key=True) # Changed from Integer to String to accommodate the hash
     name = db.Column(db.String, nullable=False) # Rule name
@@ -96,6 +96,21 @@ class Rule(db.Model):
             'security-severity': self.security_severity,
             'sub-severity': self.sub_severity
         }
+    
+class LLMCache(db.Model): 
+    id = db.Column(db.Integer, primary_key=True)  
+    suggestion = db.Column(db.Text, nullable=False) 
+    blame_id = db.Column(db.Integer, db.ForeignKey('blame.id'), nullable=False)
+    blame = db.relationship('Blame', backref=db.backref('llm_caches', lazy=True))
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'blame_id': self.blame_id,
+            'suggestion': self.suggestion,
+            'blame': self.blame.serialize() if self.blame else None
+        }
+
 
 class SarifFile(db.Model):  
     id = db.Column(db.Integer, primary_key=True)  
