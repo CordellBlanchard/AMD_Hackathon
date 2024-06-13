@@ -34,13 +34,12 @@ class Issue(db.Model):
             'lines': self.lines,
             'start_columns': self.start_columns,
             'end_columns': self.end_columns,
-            'rule_id': self.rule_id,
             'rule': self.rule,
             'commit': self.commit,
             'date': self.date,
             'resolved': self.resolved,
             'blames': [blame.serialize() for blame in self.blames], 
-            'rule': self.rule.serialize()
+            'rule': [rule.serialize() for rule in self.rule],
         }
 
 class Blame(db.Model):

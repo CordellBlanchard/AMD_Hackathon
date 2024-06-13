@@ -3,7 +3,7 @@ from sqlalchemy import or_, func
 
 from app import db
 #from app.models.models import User
-from app.models.models import Issue, Blame, issue_blame, Rule
+from app.models.models import Issue, Blame, issue_blame, issue_rule, Rule
 from datetime import datetime 
 from collections import defaultdict
 from app.util.llm import get_llm_response, create_cache 
@@ -38,7 +38,8 @@ def group_issues():
         group_by = request.args.get('group_by')
 
         # Start with all Issues
-        query = db.session.query(Issue, Blame).select_from(Issue).join(issue_blame).join(Blame)
+        #query = db.session.query(Issue, Blame).select_from(Issue).join(issue_blame).join(Blame)
+        query = db.session.query(Issue, Blame, Rule).select_from(Issue).join(issue_blame).join(Blame).join(issue_rule).join(Rule)
 
         if group_by:
             if group_by == 'id':

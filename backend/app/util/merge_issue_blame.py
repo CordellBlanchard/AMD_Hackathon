@@ -30,9 +30,9 @@ def resolve_issues(new_dict):
             issue.lines = new_dict[issue.id]['lines']
             issue.start_columns = new_dict[issue.id]['start_columns']
             issue.end_columns = new_dict[issue.id]['end_columns']
-            issue.rule = new_dict[issue.id]['rule']
+            #issue.rule = new_dict[issue.id]['rule']
             issue.commit = new_dict[issue.id]['commit']
-            issue.date = new_dict[issue.id]['datSe']
+            issue.date = new_dict[issue.id]['date']
             issue.resolved = new_dict[issue.id]['resolved']
             # Remove the issue from the new_dict
             new_dict.pop(issue.id)
@@ -61,13 +61,21 @@ def resolve_rules(rules_broken):
             rule.name = rules_broken[rule.id]['name']
             rule.shortDescription = rules_broken[rule.id]['shortDescription']['text']
             rule.fullDescription = rules_broken[rule.id]['fullDescription']['text']
-            rule.enabled = rules_broken[rule.id]['defaultConfiguratrion']['enabled']
-            rule.level = rules_broken[rule.id]['defaultConfiguration']['level']
+            rule.enabled = rules_broken[rule.id]['defaultConfiguration']['enabled']
             rule.tags = rules_broken[rule.id]['properties']['tags']
             rule.kind = rules_broken[rule.id]['properties']['kind']
-            rule.precision = rules_broken[rule.id]['properties']['precision']
-            rule.security_severity = rules_broken[rule.id]['properties']['securitySeverity']
-            rule.sub_severity = rules_broken[rule.id]['properties']['subSeverity']
+
+            if 'sub-severity' in rules_broken[rule.id]['properties']: 
+                rule.sub_severity = rules_broken[rule.id]['properties']['sub-severity']
+            
+            if 'level' in rules_broken[rule.id]['defaultConfiguration']: 
+                rule.level = rules_broken[rule.id]['defaultConfiguration']['level']
+
+            if 'precision' in rules_broken[rule.id]['properties']:
+                rule.precision = rules_broken[rule.id]['properties']['precision']
+
+            if 'security-severity' in rules_broken[rule.id]['properties']:
+                rule.security_severity = rules_broken[rule.id]['properties']['security-severity']  
 
             # Remove the rule from the rules_broken
             rules_broken.pop(rule.id)

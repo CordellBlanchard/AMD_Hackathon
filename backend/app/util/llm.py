@@ -1,10 +1,10 @@
+from app import db
 from app.util.blame_api import Repo, getLineInfo
 from app.util.sarif_parser import parse_sarif_file 
 import os 
 from openai import OpenAI
 from time import perf_counter 
 import json 
-from app import db
 from flask import jsonify 
 
 from app.models.models import Issue, Blame, LLMCache
