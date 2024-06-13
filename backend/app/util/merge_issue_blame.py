@@ -3,7 +3,11 @@ from app.util.blame_api import getFullHashFromPartial
 
 from app.models.models import Issue, Blame, Rule
 from app.util.sarif_parser import parse_sarif_file 
-from app.util.blame_api import Repo, getLineInfo    
+from app.util.blame_api import Repo, getLineInfo   
+
+
+# get repo
+repo = Repo("tensorflow", "tensorflow") # this can also come from the something else (owner, repo_name)  
 
 def resolve_issues(new_dict):
     """
@@ -31,7 +35,9 @@ def resolve_issues(new_dict):
             issue.start_columns = new_dict[issue.id]['start_columns']
             issue.end_columns = new_dict[issue.id]['end_columns']
             #issue.rule = new_dict[issue.id]['rule']
-            issue.commit = new_dict[issue.id]['commit']
+            partial_hash = new_dict[issue.id]['commit']
+            commit_hash = getFullHashFromPartial(repo, partial_hash)
+            issue.commit = commit_hash
             issue.date = new_dict[issue.id]['date']
             issue.resolved = new_dict[issue.id]['resolved']
             # Remove the issue from the new_dict
@@ -94,10 +100,7 @@ def merge_sarif(sarif_file_name):
         None
     """
     # pase the sarif file
-    new_dict, rules_broken = parse_sarif_file(sarif_file_name) 
-
-    # get repo
-    repo = Repo("tensorflow", "tensorflow") # this can also come from the something else (owner, repo_name)  
+    new_dict, rules_broken = parse_sarif_file(sarif_file_name)  
 
     # resolve old issues
     resolve_issues(new_dict)
