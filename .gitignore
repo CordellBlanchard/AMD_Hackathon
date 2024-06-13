@@ -2,4 +2,6 @@
 *.pyc
 __pycache__/
 
-.elasticbeanstalk
+.elasticbeanstalk 
+*.safetensors 
+model_docs/

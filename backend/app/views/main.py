@@ -2,7 +2,8 @@ from flask import Blueprint, request, jsonify
 from app import db
 #from app.models.models import User
 from app.models.models import Issue
-from datetime import datetime
+from datetime import datetime 
+from app.util.llm import get_llm_response, create_cache 
 
 main_bp = Blueprint('main', __name__)
 
@@ -36,6 +37,35 @@ def list_users():
         issues = db.session.query(Issue).all()
         # calling the __str__ representation defined in the User model 
         return jsonify([i.serialize() for i in issues])
+    except Exception as e:
+        db.session.rollback()
+        return f'An error occurred: {str(e)}', 500
+
+@main_bp.route('/generate_llm_response', methods=['POST'])
+def generate_llm_response():
+    try:
+        data = request.get_json()
+
+        # Extract required parameters from the request
+        rule_info = data.get("rule_info")
+        issue_message = data.get("issue_message")
+        file = data.get("file")
+        line = data.get("line")
+        commit_hash = data.get("commit_hash")
+        blame_id = data.get("blame_id")
+
+        # Check if all required parameters are provided
+        if not all([rule_info, issue_message, file, line, commit_hash, blame_id]):
+            return "Missing required parameters", 400
+
+        # Generate the LLM response
+        response = get_llm_response(rule_info, issue_message, file, line, commit_hash)
+
+        # Create cache entry
+        create_cache(blame_id, response)
+
+        return jsonify({"message": "LLM response generated and cached successfully", "response": response}), 200
+
     except Exception as e:
         db.session.rollback()
         return f'An error occurred: {str(e)}', 500
