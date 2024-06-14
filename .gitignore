@@ -4,4 +4,5 @@ __pycache__/
 
 .elasticbeanstalk 
 *.safetensors 
-model_docs/
+model_docs/ 
+*.crt

@@ -9,3 +9,4 @@ sarif-tools==2.0.0
 requests==2.32.3
 tqdm==4.66.4 
 openai==1.34.0
+tenacity==8.3.0

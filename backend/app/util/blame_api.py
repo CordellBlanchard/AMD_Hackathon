@@ -2,7 +2,7 @@ import requests
 from concurrent.futures import ThreadPoolExecutor
 
 # Your personal access token
-TOKEN = 'YOUR GITHUB API TOKEN HERE'
+TOKEN = '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'
 
 # The GraphQL endpoint
 URL = 'https://api.github.com/graphql'

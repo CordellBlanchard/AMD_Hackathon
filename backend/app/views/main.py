@@ -130,12 +130,16 @@ def generate_llm_response():
 def handle_llm_response(rule_info, issue_message, file, line, commit_hash, blame_id):
     try:
         # Generate the LLM response
-        response = get_llm_response(rule_info, issue_message, file, line, commit_hash)
+        response, fix, explanation = get_llm_response(rule_info, issue_message, file, line, commit_hash)
 
         # Create cache entry
         create_cache(blame_id, response)
 
-        return {"message": "LLM response generated and cached successfully", "response": response}, 200
+        return {"message": "LLM response generated and cached successfully", 
+                "response": response, 
+                "fix": fix, 
+                "explanation": explanation
+                }, 200
 
     except Exception as e:
         db.session.rollback()
@@ -178,15 +182,16 @@ def test_llm():
 
         # Use the helper function
         result, status_code = handle_llm_response(rule_info, issue_message, file, line, commit_hash, blame_id)
+        result['rule'] = issue.rule[0].name
+
         return jsonify(result), status_code
 
     except Exception as e:
         db.session.rollback()
         return f'An error occurred: {str(e)}', 500
     
-
     
-    # Create endpoint to retrieve rule information
+# Create endpoint to retrieve rule information
 @main_bp.route('/rules', methods=['GET'])
 def list_rules():
     try:
