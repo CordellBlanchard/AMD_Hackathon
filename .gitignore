@@ -6,3 +6,4 @@ __pycache__/
 *.safetensors 
 model_docs/ 
 *.crt
+*.txt

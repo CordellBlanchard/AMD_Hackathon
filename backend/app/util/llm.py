@@ -11,7 +11,7 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 from app.models.models import Issue, Blame, LLMCache  
 import re
 
-OPENAI_API_KEY = 'sk-proj-Wo6Bg34vwZcA83KlClhtT3BlbkFJgw0cvzrIAHbt6lfNt2UX' 
+OPENAI_API_KEY = 'OPENAI API KEY HERE' 
 OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"
 
 @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
